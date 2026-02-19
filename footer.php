@@ -23,10 +23,10 @@
 
 <?php do_action( 'tailpress_content_after' ); ?>
 
-<footer id="colophon" class="sticky bottom-0 py-4 z-100 site-footer bg-gradient-to-l from-sky-800 via-sky-700 to-sky-600" role="contentinfo">
+<footer id="colophon" class="sticky bottom-0 py-4 z-100 site-footer bg-gradient-to-l from-sky-800 via-sky-700 to-sky-600 mobile:bg-gradient-to-l mobile:from-sky-800 mobile:via-sky-700 mobile:to-sky-600 mobile:rounded-full mobile:py-4 mobile:px-12" role="contentinfo">
 	<?php do_action( 'tailpress_footer' ); ?>
 
-	<div class="container flex items-center justify-between mx-auto text-right gap-x-4">
+	<div class="container flex items-center justify-between mx-auto text-right gap-x-4 mobile:justify-center">
 		<div class="">
 			<?php
 			if (has_nav_menu('footer_logged_menu')) {
@@ -35,7 +35,7 @@
 					'container' => 'nav',
 					'container_class' => 'footer-nav',
 					'container_id' => 'fm-1-id',
-					'menu_class' => 'flex gap-x-1 items-center justify-start text-sm',
+					'menu_class' => 'flex gap-1 items-center justify-start text-sm mobile:flex-wrap',
 					'menu_id' => '',
 					'depth' => 1,
 				));

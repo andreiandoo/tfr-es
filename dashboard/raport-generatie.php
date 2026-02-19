@@ -115,8 +115,8 @@ endif;
 // ------------------------------------------------------------
 ?>
 
-<section class="sticky top-0 z-10 border-b inner-submenu bg-slate-800 border-slate-200">
-  <div class="relative z-10 flex items-center justify-between px-2 py-2 gap-x-2">
+<section class="sticky top-0 z-20 border-b inner-submenu bg-slate-800 border-slate-200">
+  <div class="relative z-20 flex items-center justify-between px-2 py-2 gap-x-2">
     <div class="flex items-center justify-start">
       <a href="<?= esc_url($back_url) ?>"
           class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white rounded-md hover:bg-slate-700">

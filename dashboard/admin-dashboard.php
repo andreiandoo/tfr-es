@@ -170,8 +170,8 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
       <h1 class="text-3xl tracking-tight text-white">Buna <span class="font-bold"><?php echo $user_fname;?></span></h1>
     </div>
 
-    <!-- Action bar -->
-    <div class="flex flex-wrap items-center gap-2">
+    <!-- Action bar (desktop only) -->
+    <div class="flex-wrap items-center hidden gap-2 md:flex">
       <a href="<?php echo esc_url( home_url('/panou/profesori') ); ?>" class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white transition-all duration-150 ease-in-out border rounded hover:bg-slate-800 border-slate-100/30 hover:border-transparent">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zM3 9h18v2H3zM3 14h18v2H3zM3 19h18v2H3z"/></svg>
         Lista profesori
@@ -205,6 +205,70 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
         Rapoarte
       </a>
     </div>
+
+    <!-- FAB + Modal (mobile only) -->
+    <button id="fab-actions" type="button" class="fixed z-50 flex items-center justify-center text-white rounded-full shadow-lg md:hidden bottom-6 right-6 w-14 h-14 bg-es-orange hover:bg-orange-600 active:scale-95" aria-label="Meniu acțiuni">
+      <svg id="fab-icon-menu" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg id="fab-icon-close" class="hidden w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div id="fab-modal" class="fixed inset-0 z-40 hidden md:hidden">
+      <div id="fab-backdrop" class="absolute inset-0 bg-black/50"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-4 pb-24 overflow-y-auto bg-white shadow-2xl rounded-t-2xl max-h-[70vh]">
+        <div class="w-10 h-1 mx-auto mb-4 rounded-full bg-slate-300"></div>
+        <h3 class="mb-3 text-sm font-semibold tracking-wide uppercase text-slate-500">Acțiuni rapide</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <a href="<?php echo esc_url( home_url('/panou/profesori') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zM3 9h18v2H3zM3 14h18v2H3zM3 19h18v2H3z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Lista profesori</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/elevi') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5.33 0-8 2.667-8 6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1c0-3.333-2.67-6-8-6Z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Lista elevi</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/scoli') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10 12 5l9 5-9 5-9-5Zm0 4 9 5 9-5"/></svg>
+            <span class="text-sm font-medium text-slate-800">Lista școli</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/rapoarte') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h14v18H5zM8 7h8v2H8zm0 4h8v2H8zm0 4h5v2H8z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Rapoarte</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/notificari') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7v4l-2 3h18l-2-3V9a7 7 0 0 0-7-7Zm0 20a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2Z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Notificări</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/tutor/'.$current_user->ID) ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5.33 0-8 2.667-8 6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1c0-3.333-2.67-6-8-6Z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Profilul meu</span>
+          </a>
+          <a href="<?php echo esc_url( home_url('/panou/setari') ); ?>" class="flex items-center gap-3 p-3 transition rounded-xl bg-slate-50 hover:bg-slate-100">
+            <svg class="flex-shrink-0 w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7 7 0 1 1-7.08-7.08 7 7 0 0 1 7.08 7.08Z"/></svg>
+            <span class="text-sm font-medium text-slate-800">Setări</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      var fab = document.getElementById('fab-actions');
+      var modal = document.getElementById('fab-modal');
+      var backdrop = document.getElementById('fab-backdrop');
+      var iconMenu = document.getElementById('fab-icon-menu');
+      var iconClose = document.getElementById('fab-icon-close');
+      var open = false;
+      function toggle(){
+        open = !open;
+        modal.classList.toggle('hidden', !open);
+        iconMenu.classList.toggle('hidden', open);
+        iconClose.classList.toggle('hidden', !open);
+        document.body.style.overflow = open ? 'hidden' : '';
+      }
+      fab.addEventListener('click', toggle);
+      backdrop.addEventListener('click', toggle);
+    })();
+    </script>
   </div>
 
   <!-- KPI Cards: luxury glass + interactive states -->

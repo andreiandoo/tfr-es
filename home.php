@@ -12,6 +12,18 @@ get_header();
 @media (prefers-reduced-motion: reduce){
   .funnel-anime{ transform: none !important; opacity: 1 !important; }
 }
+
+/* Force fullwidth on mobile - prevent scrollbar from stealing layout space */
+@media (max-width: 768px) {
+  html, body {
+    scrollbar-width: none;           /* Firefox */
+    -ms-overflow-style: none;        /* IE/Edge */
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;                   /* Chrome/Safari */
+  }
+}
 </style>
 
 

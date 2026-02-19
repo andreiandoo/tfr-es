@@ -123,7 +123,7 @@ foreach ($visible_keys as $k) {
 
     <!-- Toggle -->
     <button @click="sidebarOpen = !sidebarOpen"
-            class="inline-flex items-center justify-center p-2 ml-auto rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20">
+            class="inline-flex items-center justify-center p-2 ml-auto rounded-lg hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 mobile:bg-white/10 mobile:ring-white/20 mobile:ring-2">
       <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       <svg x-show="!sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
     </button>

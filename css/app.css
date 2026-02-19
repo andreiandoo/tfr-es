@@ -1512,6 +1512,9 @@ input:checked + .toggle-bg{
 .max-h-72{
   max-height: 18rem;
 }
+.max-h-\[70vh\]{
+  max-height: 70vh;
+}
 .min-h-0{
   min-height: 0px;
 }
@@ -1541,6 +1544,9 @@ input:checked + .toggle-bg{
 }
 .w-10{
   width: 2.5rem;
+}
+.w-14{
+  width: 3.5rem;
 }
 .w-16{
   width: 4rem;
@@ -1704,6 +1710,9 @@ input:checked + .toggle-bg{
 .flex-shrink{
   flex-shrink: 1;
 }
+.flex-shrink-0{
+  flex-shrink: 0;
+}
 .shrink{
   flex-shrink: 1;
 }
@@ -1787,6 +1796,19 @@ input:checked + .toggle-bg{
 }
 .transform-none{
   transform: none;
+}
+@keyframes fadeInUp{
+  0%{
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up{
+  animation: fadeInUp 1s ease-in-out;
 }
 @keyframes ping{
   75%, 100%{
@@ -2094,6 +2116,10 @@ input:checked + .toggle-bg{
   border-start-start-radius: 0.5rem;
   border-end-start-radius: 0.5rem;
 }
+.rounded-t-2xl{
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
 .rounded-br-none{
   border-bottom-right-radius: 0px;
 }
@@ -2288,6 +2314,9 @@ input:checked + .toggle-bg{
 }
 .bg-black\/40{
   background-color: rgb(0 0 0 / 0.4);
+}
+.bg-black\/50{
+  background-color: rgb(0 0 0 / 0.5);
 }
 .bg-blue-100{
   --tw-bg-opacity: 1;
@@ -2886,6 +2915,9 @@ input:checked + .toggle-bg{
 }
 .pb-20{
   padding-bottom: 5rem;
+}
+.pb-24{
+  padding-bottom: 6rem;
 }
 .pb-3{
   padding-bottom: 0.75rem;
@@ -4336,6 +4368,10 @@ input[type="number"] {
   --tw-bg-opacity: 1;
   background-color: rgb(81 69 205 / var(--tw-bg-opacity));
 }
+.hover\:bg-orange-600:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(208 56 1 / var(--tw-bg-opacity));
+}
 .hover\:bg-pink-700:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(191 18 93 / var(--tw-bg-opacity));
@@ -4642,6 +4678,11 @@ input[type="number"] {
   --tw-text-opacity: 1;
   color: rgb(71 85 105 / var(--tw-text-opacity));
 }
+.active\:scale-95:active{
+  --tw-scale-x: .95;
+  --tw-scale-y: .95;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .active\:scale-\[\.98\]:active{
   --tw-scale-x: .98;
   --tw-scale-y: .98;
@@ -4659,11 +4700,48 @@ input[type="number"] {
   .mobile\:static{
     position: static;
   }
+  .mobile\:fixed{
+    position: fixed;
+  }
+  .mobile\:bottom-4{
+    bottom: 1rem;
+  }
+  .mobile\:left-0{
+    left: 0px;
+  }
+  .mobile\:right-0{
+    right: 0px;
+  }
+  .mobile\:col-span-2{
+    grid-column: span 2 / span 2;
+  }
+  .mobile\:col-span-5{
+    grid-column: span 5 / span 5;
+  }
+  .mobile\:mx-auto{
+    margin-left: auto;
+    margin-right: auto;
+  }
   .mobile\:mt-4{
     margin-top: 1rem;
   }
+  .mobile\:flex{
+    display: flex;
+  }
+  .mobile\:grid{
+    display: grid;
+  }
+  .mobile\:hidden{
+    display: none;
+  }
+  .mobile\:h-5{
+    height: 1.25rem;
+  }
   .mobile\:h-64{
     height: 16rem;
+  }
+  .mobile\:h-\[calc\(100vh-3rem\)\]{
+    height: calc(100vh - 3rem);
   }
   .mobile\:h-auto{
     height: auto;
@@ -4671,15 +4749,44 @@ input[type="number"] {
   .mobile\:max-h-80{
     max-height: 20rem;
   }
+  .mobile\:max-h-\[85vh\]{
+    max-height: 85vh;
+  }
+  .mobile\:w-5{
+    width: 1.25rem;
+  }
+  .mobile\:max-w-\[90\%\]{
+    max-width: 90%;
+  }
   .mobile\:grid-cols-1{
     grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .mobile\:grid-cols-12{
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
   .mobile\:flex-col{
     flex-direction: column;
   }
+  .mobile\:flex-wrap{
+    flex-wrap: wrap;
+  }
+  .mobile\:items-end{
+    align-items: flex-end;
+  }
+  .mobile\:justify-center{
+    justify-content: center;
+  }
   .mobile\:gap-x-0{
     -moz-column-gap: 0px;
          column-gap: 0px;
+  }
+  .mobile\:gap-x-1{
+    -moz-column-gap: 0.25rem;
+         column-gap: 0.25rem;
+  }
+  .mobile\:gap-x-2{
+    -moz-column-gap: 0.5rem;
+         column-gap: 0.5rem;
   }
   .mobile\:gap-y-2{
     row-gap: 0.5rem;
@@ -4687,20 +4794,78 @@ input[type="number"] {
   .mobile\:overflow-visible{
     overflow: visible;
   }
+  .mobile\:overflow-y-scroll{
+    overflow-y: scroll;
+  }
+  .mobile\:rounded-full{
+    border-radius: 9999px;
+  }
   .mobile\:rounded-none{
     border-radius: 0px;
+  }
+  .mobile\:bg-white\/10{
+    background-color: rgb(255 255 255 / 0.1);
+  }
+  .mobile\:bg-gradient-to-l{
+    background-image: linear-gradient(to left, var(--tw-gradient-stops));
+  }
+  .mobile\:from-sky-800{
+    --tw-gradient-from: #075985 var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(7 89 133 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .mobile\:via-sky-700{
+    --tw-gradient-to: rgb(3 105 161 / 0)  var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), #0369a1 var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+  .mobile\:to-sky-600{
+    --tw-gradient-to: #0284c7 var(--tw-gradient-to-position);
+  }
+  .mobile\:px-0{
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .mobile\:px-12{
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+  .mobile\:px-2{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
   .mobile\:px-4{
     padding-left: 1rem;
     padding-right: 1rem;
   }
+  .mobile\:px-6{
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .mobile\:py-2{
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
   .mobile\:py-4{
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
+  .mobile\:pb-10{
+    padding-bottom: 2.5rem;
+  }
+  .mobile\:pb-12{
+    padding-bottom: 3rem;
+  }
   .mobile\:text-2xl{
     font-size: 1.5rem;
     line-height: 2rem;
+  }
+  .mobile\:ring-2{
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  }
+  .mobile\:ring-white\/20{
+    --tw-ring-color: rgb(255 255 255 / 0.2);
   }
 }
 @media (min-width: 600px){
@@ -4770,6 +4935,9 @@ input[type="number"] {
   }
   .md\:flex{
     display: flex;
+  }
+  .md\:hidden{
+    display: none;
   }
   .md\:w-1\/2{
     width: 50%;
@@ -4877,9 +5045,6 @@ input[type="number"] {
   }
   .lg\:items-center{
     align-items: center;
-  }
-  .lg\:justify-between{
-    justify-content: space-between;
   }
   .lg\:gap-12{
     gap: 3rem;

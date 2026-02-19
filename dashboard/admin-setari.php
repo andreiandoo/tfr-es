@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </h1>
             <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-800 ring-1 ring-inset ring-slate-200">Administrator</span>
           </div>
-          <div class="flex mt-2 text-sm text-white gap-x-6 gap-y-2">
+          <div class="flex mt-2 text-sm text-white gap-x-6 gap-y-2 mobile:flex-col">
             <div class="flex items-center gap-2">
               <svg class="text-white size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v.511L12 12 2 6.511V6Z"/><path d="M2 8.489V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8.489l-9.445 5.523a2 2 0 0 1-2.11 0L2 8.489Z"/></svg>
               <a class="hover:underline" href="mailto:<?= esc_attr($current_user->user_email); ?>"><?= esc_html($current_user->user_email); ?></a>

@@ -160,8 +160,8 @@ $qs = $_GET; unset($qs['paged']); $base_url = esc_url(add_query_arg($qs, remove_
 
 ?>
 
-<section class="sticky top-0 z-10 border-b inner-submenu bg-slate-800 border-slate-200">
-  <div class="relative z-10 flex items-center justify-between px-2 py-2 gap-x-2">
+<section class="sticky top-0 z-20 border-b inner-submenu bg-slate-800 border-slate-200">
+  <div class="relative z-20 flex items-center justify-between px-2 py-2 gap-x-2">
     <div class="flex items-center justify-start">
       <button id="eu-open-add" type="button"
           class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white rounded-md rounded-tl-xl bg-emerald-600 hover:bg-emerald-700">
@@ -173,53 +173,55 @@ $qs = $_GET; unset($qs['paged']); $base_url = esc_url(add_query_arg($qs, remove_
     <div class="flex items-center justify-end gap-x-2">
       <a href="../documentatie/#adaugareutilizatori" target="_blank" rel="noopener noreferrer"
         class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white rounded-md hover:bg-slate-700">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 mobile:w-5 mobile:h-5">
           <path d="M12 .75a8.25 8.25 0 0 0-4.135 15.39c.686.398 1.115 1.008 1.134 1.623a.75.75 0 0 0 .577.706c.352.083.71.148 1.074.195.323.041.6-.218.6-.544v-4.661a6.714 6.714 0 0 1-.937-.171.75.75 0 1 1 .374-1.453 5.261 5.261 0 0 0 2.626 0 .75.75 0 1 1 .374 1.452 6.712 6.712 0 0 1-.937.172v4.66c0 .327.277.586.6.545.364-.047.722-.112 1.074-.195a.75.75 0 0 0 .577-.706c.02-.615.448-1.225 1.134-1.623A8.25 8.25 0 0 0 12 .75Z" />
           <path fill-rule="evenodd" d="M9.013 19.9a.75.75 0 0 1 .877-.597 11.319 11.319 0 0 0 4.22 0 .75.75 0 1 1 .28 1.473 12.819 12.819 0 0 1-4.78 0 .75.75 0 0 1-.597-.876ZM9.754 22.344a.75.75 0 0 1 .824-.668 13.682 13.682 0 0 0 2.844 0 .75.75 0 1 1 .156 1.492 15.156 15.156 0 0 1-3.156 0 .75.75 0 0 1-.668-.824Z" clip-rule="evenodd" />
         </svg>
-        Documentatie
+        <span class="mobile:hidden">Documentatie</span>
       </a>
     </div>
   </div>
 </section>
 
 <!-- Filtre -->
-<section class="flex items-end justify-between px-6 my-6 gap-x-4">
-    <form method="get" class="grid items-end grid-cols-1 gap-3 md:grid-cols-12">
-        <div class="md:col-span-3">
-            <label class="block mb-1 text-xs font-medium text-slate-600">Căutare (nume/email)</label>
-            <input type="text" name="s" value="<?php echo esc_attr($s); ?>"
-                    class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-600 focus:border-transparent">
-        </div>
-        <div class="md:col-span-2">
-            <label class="block mb-1 text-xs font-medium text-slate-600">Rol</label>
-            <select name="role" class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:ring-1 focus:ring-sky-600 focus:border-transparent">
-            <option value="">— Oricare —</option>
-            <?php foreach ($filter_role_list as $rr): $lab = $ROLE_LABELS[$rr] ?? ucfirst($rr); ?>
-                <option value="<?php echo esc_attr($rr); ?>" <?php selected($role_f===$rr); ?>><?php echo esc_html($lab); ?></option>
-            <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="md:col-span-2">
-            <label class="block mb-1 text-xs font-medium text-slate-600">Pe pagină</label>
-            <input type="number" min="5" max="200" name="perpage" value="<?php echo (int)$perpage; ?>"
-                    class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-600 focus:border-transparent">
-        </div>
-        <div class="md:col-span-3">
-            <button type="submit"
-                    class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white shadow-sm rounded-xl bg-emerald-600 hover:bg-emerald-700">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                <path fill-rule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-5.818a1.5 1.5 0 0 0-.44-1.06L3.13 7.938a3 3 0 0 1-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836Z" clip-rule="evenodd" />
-            </svg>
+<section class="flex items-end justify-between px-6 my-6 gap-x-4 mobile:px-2">
+  <form method="get" class="grid items-end grid-cols-1 gap-3 md:grid-cols-12 w-full">
+    <div class="md:col-span-3 mobile:cols-span-12">
+        <label class="block mb-1 text-xs font-medium text-slate-600">Căutare (nume/email)</label>
+        <input type="text" name="s" value="<?php echo esc_attr($s); ?>"
+                class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-600 focus:border-transparent">
+    </div>
+    <div class="mobile:grid mobile:grid-cols-12 mobile:items-end mobile:gap-x-2 ">
+      <div class="md:col-span-2 mobile:col-span-5">
+          <label class="block mb-1 text-xs font-medium text-slate-600">Rol</label>
+          <select name="role" class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:ring-1 focus:ring-sky-600 focus:border-transparent">
+          <option value="">— Oricare —</option>
+          <?php foreach ($filter_role_list as $rr): $lab = $ROLE_LABELS[$rr] ?? ucfirst($rr); ?>
+              <option value="<?php echo esc_attr($rr); ?>" <?php selected($role_f===$rr); ?>><?php echo esc_html($lab); ?></option>
+          <?php endforeach; ?>
+          </select>
+      </div>
+      <div class="md:col-span-2 mobile:col-span-5">
+          <label class="block mb-1 text-xs font-medium text-slate-600">Pe pagină</label>
+          <input type="number" min="5" max="200" name="perpage" value="<?php echo (int)$perpage; ?>"
+                  class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:outline-none focus:ring-1 focus:ring-sky-600 focus:border-transparent">
+      </div>
+      <div class="md:col-span-3 mobile:col-span-2">
+          <button type="submit"
+                  class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white shadow-sm rounded-xl bg-emerald-600 hover:bg-emerald-700">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd" d="M3.792 2.938A49.069 49.069 0 0 1 12 2.25c2.797 0 5.54.236 8.209.688a1.857 1.857 0 0 1 1.541 1.836v1.044a3 3 0 0 1-.879 2.121l-6.182 6.182a1.5 1.5 0 0 0-.439 1.061v2.927a3 3 0 0 1-1.658 2.684l-1.757.878A.75.75 0 0 1 9.75 21v-5.818a1.5 1.5 0 0 0-.44-1.06L3.13 7.938a3 3 0 0 1-.879-2.121V4.774c0-.897.64-1.683 1.542-1.836Z" clip-rule="evenodd" />
+          </svg>
 
-            Filtrează
-            </button>
-        </div>
-    </form>
+          <span class="mobile:hidden">Filtrează</span>
+          </button>
+      </div>
+    </div>
+  </form>
 </section>
 
 <!-- Tabel -->
-<section class="px-6 pb-8">
+<section class="px-6 pb-8 mobile:px-2 mobile:pb-12">
   <div class="relative overflow-x-auto bg-white border shadow-sm rounded-2xl border-slate-200">
     <table class="relative w-full text-sm table-fixed" id="eu-table">
       <thead class="sticky top-0 bg-sky-800 backdrop-blur">

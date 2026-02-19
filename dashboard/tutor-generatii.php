@@ -26,8 +26,8 @@ $cards = $bundle['cards'];
 
 /** Header premium */
 echo '
-  <section class="sticky top-0 z-10 border-b inner-submenu bg-slate-800 border-slate-200">
-    <div class="relative z-10 flex items-center justify-between px-4 py-3 gap-x-2">
+  <section class="sticky top-0 z-20 border-b inner-submenu bg-slate-800 border-slate-200">
+    <div class="relative z-20 flex items-center justify-between px-4 py-3 gap-x-2">
       <div class="flex items-center justify-start">
         <h1 class="text-sm font-semibold text-white">Generațiile profesorilor tăi</h1>
       </div>

@@ -141,8 +141,8 @@ $fileSelPdf = $fileSelPdf ?? '';
    Important e containerul cu x-data="{tab:'sel'}" și cele două zone x-show.
 */
 ?>
-<section class="sticky top-0 z-10 border-b inner-submenu bg-slate-800 border-slate-200">
-  <div class="relative z-10 flex items-center justify-between px-2 py-2 gap-x-2">
+<section class="sticky top-0 z-20 border-b inner-submenu bg-slate-800 border-slate-200">
+  <div class="relative z-20 flex items-center justify-between px-2 py-2 gap-x-2">
     <div class="flex items-center justify-start gap-x-4">
       <?php if($viewer_mode === 'TUTOR') : ?>
         <a href="<?= esc_url(home_url('/panou/generatia/') . $student->generation_id) ?>"

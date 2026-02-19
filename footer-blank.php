@@ -25,7 +25,7 @@
 
         </div>
 
-        <footer id="colophon" class="sticky bottom-0 flex items-center justify-between py-4 pl-2 pr-6 text-white bg-transparent gap-x-4 site-footer" role="contentinfo">
+        <footer id="colophon" class="sticky bottom-0 flex items-center justify-between py-4 pl-2 pr-6 text-white bg-transparent gap-x-4 site-footer mobile:bg-gradient-to-l mobile:from-sky-800 mobile:via-sky-700 mobile:to-sky-600 mobile:rounded-full mobile:max-w-[90%] mobile:mx-auto mobile:fixed mobile:bottom-4 mobile:left-0 mobile:right-0 mobile:py-2 mobile:px-6 animate-fade-in-up" role="contentinfo">
             <?php do_action( 'tailpress_footer' ); ?>
 
             <?php 
@@ -46,7 +46,7 @@
             </div>
             <?php } ?>
 
-            <div class="container flex items-center justify-end mx-auto text-right gap-x-4">
+            <div class="container flex items-center justify-end mx-auto text-right gap-x-4 mobile:justify-center">
                 <?php 
                 if ($vp != 'mobile') { ?>
                     <div class="flex items-center justify-center mr-4 gap-x-4">

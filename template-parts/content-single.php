@@ -1,5 +1,5 @@
 <!-- FIXED READER LAYOUT (desktop: split 2-col, mobile: single column) -->
-<div class="container inset-x-0 top-24 bottom-24 z-10 mx-auto h-[calc(100vh-12rem)] rounded-2xl bg-white overflow-hidden mobile:h-auto mobile:rounded-none mobile:overflow-visible">
+<div class="container inset-x-0 top-24 bottom-24 z-10 mx-auto h-[calc(100vh-12rem)] rounded-2xl bg-white overflow-hidden mobile:h-auto mobile:rounded-none mobile:overflow-visible mobile:px-0">
   <div id="post-<?php the_ID(); ?>" class="h-full mobile:h-auto"><?php /* post_class(); */ ?>
     <div class="grid h-full grid-cols-2 overflow-hidden rounded-2xl mobile:grid-cols-1 mobile:h-auto mobile:overflow-visible mobile:rounded-none">
 
