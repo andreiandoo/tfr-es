@@ -1,25 +1,25 @@
-<!-- FIXED READER LAYOUT -->
-<div class="container inset-x-0 top-24 bottom-24 z-10 mx-auto h-[calc(100vh-12rem)] rounded-2xl bg-white overflow-hidden">
-  <div id="post-<?php the_ID(); ?>" class="h-full"><?php /* post_class(); */ ?>
-    <div class="grid h-full grid-cols-2 overflow-hidden rounded-2xl">
+<!-- FIXED READER LAYOUT (desktop: split 2-col, mobile: single column) -->
+<div class="container inset-x-0 top-24 bottom-24 z-10 mx-auto h-[calc(100vh-12rem)] rounded-2xl bg-white overflow-hidden mobile:h-auto mobile:rounded-none mobile:overflow-visible">
+  <div id="post-<?php the_ID(); ?>" class="h-full mobile:h-auto"><?php /* post_class(); */ ?>
+    <div class="grid h-full grid-cols-2 overflow-hidden rounded-2xl mobile:grid-cols-1 mobile:h-auto mobile:overflow-visible mobile:rounded-none">
 
-      <!-- LEFT column: pinned image -->
-      <div class="sticky top-0 z-10 h-full">
+      <!-- LEFT column: pinned image (top on mobile) -->
+      <div class="sticky top-0 z-10 h-full mobile:static mobile:h-auto">
         <?php if ( has_post_thumbnail() ) : ?>
-          <div class="h-full post-thumbnail">
-            <?php the_post_thumbnail( 'large', array( 'class' => 'h-full w-full object-cover' ) ); ?>
+          <div class="h-full post-thumbnail mobile:h-auto">
+            <?php the_post_thumbnail( 'large', array( 'class' => 'h-full w-full object-cover mobile:h-64 mobile:max-h-80' ) ); ?>
           </div>
         <?php endif; ?>
       </div>
 
-      <!-- RIGHT column: scrollable content -->
-      <div class="h-full min-h-0 article">
-        <div class="relative h-full min-h-0 px-10 py-6 overflow-y-auto prose main-content scrollbar-thumb-rounded scrollbar-thumb-gray-300 scrollbar-track-sky-800">
+      <!-- RIGHT column: scrollable content (flows naturally on mobile) -->
+      <div class="h-full min-h-0 article mobile:h-auto">
+        <div class="relative h-full min-h-0 px-10 py-6 overflow-y-auto prose main-content scrollbar-thumb-rounded scrollbar-thumb-gray-300 scrollbar-track-sky-800 mobile:h-auto mobile:overflow-visible mobile:px-4 mobile:py-4">
 
           <?php
             $categories = get_the_category();
             if ( ! empty( $categories ) ) {
-              echo '<div class="mt-8 mb-4 text-sm text-center text-gray-500">';
+              echo '<div class="mt-8 mb-4 text-sm text-center text-gray-500 mobile:mt-4">';
               foreach ( $categories as $category ) {
                 echo '<span class="inline-block px-2 py-1 mb-2 mr-2 text-sm font-semibold text-white uppercase rounded bg-es-orange">' . esc_html( $category->name ) . '</span>';
               }
@@ -27,9 +27,9 @@
             }
           ?>
 
-          <h1 class="mb-2 text-3xl font-bold text-center text-es-orange"><?php the_title(); ?></h1>
+          <h1 class="mb-2 text-3xl font-bold text-center text-es-orange mobile:text-2xl"><?php the_title(); ?></h1>
 
-          <div class="flex items-center justify-center gap-x-8">
+          <div class="flex items-center justify-center gap-x-8 mobile:flex-col mobile:gap-y-2 mobile:gap-x-0">
             <div class="flex items-center gap-x-2">
               <?php echo get_avatar( get_the_author_meta( 'ID' ), 40, '', '', array( 'class' => 'mr-3 rounded-full' ) ); ?>
               <div class="text-sm font-medium text-gray-800">
