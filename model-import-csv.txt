@@ -1,0 +1,3 @@
+Județ,Oraș,Comună/Sat,Cod,Nume școală,Denumire scurtă,Localitate,Localitate superioară,Regiune TFR,Statut,Medie IRSE,Scor IRSE,Strategică
+Ilfov,Buftea,Crevedia,1234,Școala Gimnazială Nr. 1,Șc. Gimn. 1,Buftea,Ilfov,RMD,de stat,6.42,80.5,1
+Cluj,Cluj-Napoca,,4321,Colegiul Tehnic Energetic,Energetic,Cluj-Napoca,Cluj,RCV,privat,7.1,92.3,0

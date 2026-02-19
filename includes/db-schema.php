@@ -1,0 +1,223 @@
+<?php
+// includes/db-schema.php
+if (!defined('ABSPATH')) exit;
+
+
+
+
+
+function edu_create_generations_table() {
+    global $wpdb;
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+    $table = $wpdb->prefix . 'edu_generations';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE {$table} (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        professor_id BIGINT UNSIGNED NOT NULL,
+        level VARCHAR(20) NOT NULL,
+        class_label VARCHAR(30) NOT NULL,
+        year INT NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY professor_id (professor_id),
+        KEY level (level),
+        KEY year (year),
+        UNIQUE KEY uniq_prof_level_label_year (professor_id, level, class_label, year)
+    ) {$charset_collate};";
+
+    dbDelta($sql);
+}
+
+function edu_alter_generations_add_name() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'edu_generations';
+    $cols  = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
+    if (!$cols) return;
+
+    if (!in_array('name', $cols, true)) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN name VARCHAR(190) NULL AFTER id;");
+        // index pe name nu e obligatoriu acum
+    }
+}
+
+// Adaugă coloana care stochează multiple clase la o generație (JSON)
+function edu_alter_generations_add_classlabels() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'edu_generations';
+    $cols  = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
+    if (!$cols) return;
+
+    if (!in_array('class_labels_json', $cols, true)) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN class_labels_json LONGTEXT NULL AFTER class_label;");
+    }
+}
+
+function edu_alter_students_add_generation_professor() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'edu_students';
+    $cols  = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
+    if (!$cols) return;
+
+    // generation_id
+    if (!in_array('generation_id', $cols, true)) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN generation_id BIGINT UNSIGNED NULL AFTER id;");
+        $wpdb->query("ALTER TABLE {$table} ADD KEY generation_id (generation_id);");
+    }
+
+    // professor_id
+    if (!in_array('professor_id', $cols, true)) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN professor_id BIGINT UNSIGNED NULL AFTER generation_id;");
+        $wpdb->query("ALTER TABLE {$table} ADD KEY professor_id (professor_id);");
+    }
+
+    // created_at (pentru ordonare / audit)
+    if (!in_array('created_at', $cols, true)) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER notes;");
+        $wpdb->query("ALTER TABLE {$table} MODIFY created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;");
+    }
+}
+
+function edu_install_schema() {
+    // Creează tabelul de generații + alter elevi
+    edu_create_generations_table();
+    edu_alter_students_add_generation_professor();
+}
+
+function edu_create_location_tables() {
+    global $wpdb;
+    $charset = $wpdb->get_charset_collate();
+
+    $counties = $wpdb->prefix . 'edu_counties';
+    $cities   = $wpdb->prefix . 'edu_cities';
+    $schools  = $wpdb->prefix . 'edu_schools';
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+    dbDelta("CREATE TABLE $counties (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+    ) $charset;");
+
+    dbDelta("CREATE TABLE $cities (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        county_id BIGINT UNSIGNED NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        parent_city_id BIGINT UNSIGNED DEFAULT NULL,
+        FOREIGN KEY (county_id) REFERENCES $counties(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_city_id) REFERENCES $cities(id) ON DELETE SET NULL
+    ) $charset;");
+
+    dbDelta("CREATE TABLE $schools (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        city_id BIGINT UNSIGNED NOT NULL,
+        village_id BIGINT UNSIGNED DEFAULT NULL,
+        cod INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        short_name VARCHAR(100),
+        location VARCHAR(100),
+        superior_location VARCHAR(100),
+        county VARCHAR(100),
+        regiune_tfr ENUM('RMD', 'RCV', 'SUD') NOT NULL,
+        statut VARCHAR(100),
+        medie_irse FLOAT,
+        scor_irse FLOAT,
+        strategic TINYINT(1) DEFAULT 0,
+        FOREIGN KEY (city_id) REFERENCES $cities(id) ON DELETE CASCADE,
+        FOREIGN KEY (village_id) REFERENCES $cities(id) ON DELETE SET NULL
+    ) $charset;");
+}
+
+function edu_create_classes_table() {
+    global $wpdb;
+    $charset = $wpdb->get_charset_collate();
+    $classes = $wpdb->prefix . 'edu_classes';
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta("
+      CREATE TABLE $classes (
+        id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        school_id   BIGINT UNSIGNED NOT NULL,
+        teacher_id  BIGINT UNSIGNED NOT NULL,
+        name        VARCHAR(100) NOT NULL,
+        level       VARCHAR(50)     NOT NULL,
+        PRIMARY KEY (id),
+        KEY school_id  (school_id),
+        KEY teacher_id (teacher_id),
+        FOREIGN KEY (school_id)  REFERENCES {$wpdb->prefix}edu_schools(id) ON DELETE CASCADE,
+        FOREIGN KEY (teacher_id) REFERENCES {$wpdb->prefix}users(id)        ON DELETE CASCADE
+      ) $charset;
+    ");
+}
+
+function edu_create_students_table() {
+    global $wpdb;
+    $charset = $wpdb->get_charset_collate();
+    $table   = $wpdb->prefix . 'edu_students';
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta(
+        "CREATE TABLE {$table} (
+            id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            class_id    BIGINT UNSIGNED NOT NULL,
+            first_name  VARCHAR(100)      NOT NULL,
+            last_name   VARCHAR(100)      NOT NULL,
+            age         INT               NOT NULL,
+            gender      ENUM('M','F')     NOT NULL,
+            -- old observation enum, without absenteism:
+            observation  ENUM('transfer','abandon') NULL,
+            notes        TEXT              NULL,
+            -- new columns:
+            sit_abs      ENUM('Deloc','Uneori/Rar','Des','Foarte Des') NULL,
+            frecventa    ENUM('Nu','Da (1an)','Da (2ani)','Da (3ani)') NULL,
+            bursa        ENUM('Nu','Da')   NULL,
+            dif_limba    ENUM('Nu','Da')   NULL,
+            PRIMARY KEY (id),
+            KEY class_id (class_id),
+            CONSTRAINT fk_edu_students_class
+                FOREIGN KEY (class_id)
+                REFERENCES {$wpdb->prefix}edu_classes(id)
+                ON DELETE CASCADE
+            ) {$charset};
+        "
+    );
+}
+
+function edu_alter_students_add_class_label() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'edu_students';
+    $col   = $wpdb->get_results("SHOW COLUMNS FROM {$table} LIKE 'class_label'");
+    if (!$col) {
+        $wpdb->query("ALTER TABLE {$table} ADD COLUMN class_label VARCHAR(50) NULL DEFAULT '' AFTER generation_id");
+    }
+}
+
+if (!function_exists('edu_schools_add_columns_tfr_siiir_mediu')) {
+  function edu_schools_add_columns_tfr_siiir_mediu(){
+    global $wpdb;
+    $tbl = $wpdb->prefix . 'edu_schools';
+
+    // helper local (nu ciocnim cu altele existente)
+    $col_exists = function($col) use ($wpdb, $tbl){
+      return (bool) $wpdb->get_var( $wpdb->prepare("SHOW COLUMNS FROM {$tbl} LIKE %s", $col) );
+    };
+
+    // index_vulnerabilitate_tfr
+    if (!$col_exists('index_vulnerabilitate_tfr')) {
+      // poți folosi DECIMAL(6,3) dacă vrei mai multă precizie
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN index_vulnerabilitate_tfr FLOAT NULL AFTER strategic");
+    }
+
+    // numar_elevi_siiir
+    if (!$col_exists('numar_elevi_siiir')) {
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN numar_elevi_siiir INT NULL AFTER index_vulnerabilitate_tfr");
+    }
+
+    // mediu
+    if (!$col_exists('mediu')) {
+      // dacă ENUM nu îți place, schimbă în VARCHAR(10) fără probleme
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN mediu ENUM('urban','rural') NULL AFTER numar_elevi_siiir");
+    }
+  }
+}
