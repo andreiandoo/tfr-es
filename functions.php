@@ -207,10 +207,13 @@ function remove_scripts(){
     wp_dequeue_style( 'classic-theme-styles' );
 }
 
-// Remove WordPress global styles and SVG filters from wp_head
-remove_action( 'wp_enqueue_scripts', 'wp_enqueue_global_styles' );
-remove_action( 'wp_body_open', 'wp_global_styles_render_svg_filters' );
-remove_action( 'wp_footer', 'wp_enqueue_global_styles', 1 );
+// Remove ALL WordPress global inline styles and SVG filters
+add_action( 'init', function() {
+    remove_action( 'wp_enqueue_scripts', 'wp_enqueue_global_styles' );
+    remove_action( 'wp_footer', 'wp_enqueue_global_styles', 1 );
+    remove_action( 'wp_body_open', 'wp_global_styles_render_svg_filters' );
+    remove_action( 'in_admin_header', 'wp_global_styles_render_svg_filters' );
+});
 
 // =========================================================================
 // REMOVE USELESS FROM WOOCOMMERCE
