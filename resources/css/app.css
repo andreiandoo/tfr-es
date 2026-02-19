@@ -1,0 +1,118 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import "custom.css";
+body, html{
+    /* font-family: 'Noto Sans', sans-serif; */
+    font-family: 'Gabarito', sans-serif;
+}
+
+/* Remove arrows in input number for Chrome, Safari, Edge, and Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove arrows in input number for Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.container-full {
+    max-width: 100%;
+}
+.container {
+    max-width: calc(100vw - 10%);
+}
+.container-lg {
+    max-width: calc(100vw - 20%);
+}
+.container-md {
+    max-width: calc(100vw - 30%);
+}
+.container-sm {
+    max-width: 960px;
+}
+.container-xs {
+    max-width: 640px;
+}
+.gridvideo iframe {
+    max-width: 100%;
+}
+
+#transHeader.fixed {
+    backdrop-filter: blur(10px);
+}
+
+#searchMessage {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.inner-submenu:before {
+    content: '';
+    background: #1e293b;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-right: 0px;
+    border-bottom: 0px;
+    border-color: #0283c6;
+    border-width: 5px;
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    left: -5px;
+    top: -5px;
+}
+.inner-submenu:after {
+    content: '';
+    background: #1e293b;
+    border-top-right-radius: 19px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0px;
+    border-bottom: 0px;
+    border-color: #075985;
+    border-width: 5px;
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    right: -5px;
+    top: -5px;
+}
+
+#fm-1-id .menu-item a {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #ffffff;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+}
+#fm-1-id .menu-item a:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#questionnaireTitle span {
+    background: #fd431c;
+    padding: 0.25rem 0.75rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    margin-right: 0.75rem;
+}
