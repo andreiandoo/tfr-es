@@ -3943,16 +3943,30 @@ input[type="number"] {
     }
 }
 .container-lg {
-    max-width: calc(100vw - 20%);
+    max-width: 100%;
 }
 .container-md {
-    max-width: calc(100vw - 30%);
+    max-width: 100%;
 }
 .container-sm {
-    max-width: 960px;
+    max-width: 100%;
 }
 .container-xs {
-    max-width: 640px;
+    max-width: 100%;
+}
+@media (min-width: 768px) {
+    .container-lg {
+        max-width: calc(100vw - 20%);
+    }
+    .container-md {
+        max-width: calc(100vw - 30%);
+    }
+    .container-sm {
+        max-width: 960px;
+    }
+    .container-xs {
+        max-width: 640px;
+    }
 }
 .gridvideo iframe {
     max-width: 100%;
