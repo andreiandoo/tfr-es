@@ -3935,7 +3935,12 @@ input[type="number"] {
     max-width: 100%;
 }
 .container {
-    max-width: calc(100vw - 10%);
+    max-width: 100%;
+}
+@media (min-width: 768px) {
+    .container {
+        max-width: calc(100vw - 10%);
+    }
 }
 .container-lg {
     max-width: calc(100vw - 20%);
