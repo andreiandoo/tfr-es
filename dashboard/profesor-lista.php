@@ -371,17 +371,17 @@ if (empty($lit_schema['questions'])) {
     $choices_p  = array_map(fn($v)=>['value'=>(string)$v,'label'=>(string)$v], ['P','1','2','3','4']);
     $condPP     = ['field'=>'lit_q2','values'=>['P','PP']];
     $lit_schema['questions'] = [
-      ['name'=>'lit_q1','label'=>'Lista de cuvinte','type'=>'select','choices'=>$choices_pp,'required'=>true],
+      ['name'=>'lit_q1','label'=>'Lista de cuvinte','type'=>'select','choices'=>$choices_pp,'required'=>false],
       ['name'=>'lit_q2','label'=>'Acuratețe citire','type'=>'select','choices'=>$choices_pp,'required'=>true],
-      ['name'=>'lit_q3','label'=>'CCPM','type'=>'range','min'=>0,'max'=>100,'step'=>1,'initial'=>'0','required'=>true],
-      ['name'=>'lit_q4','label'=>'Comprehensiune citire','type'=>'select','choices'=>$choices_p,'required'=>true],
-      ['name'=>'lit_q5','label'=>'Comprehensiune audiere','type'=>'select','choices'=>$choices_p,'required'=>true],
-      ['name'=>'lit_q6','label'=>'Scris (număr cuvinte pe care le scriu corect)','type'=>'range','min'=>0,'max'=>5,'step'=>1,'initial'=>'0','required'=>true],
-      ['name'=>'lit_q7','label'=>'Noțiunea despre textul tipărit (0–6)','type'=>'range','min'=>0,'max'=>6,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
-      ['name'=>'lit_q8','label'=>'Recunoașterea și reproducerea alfabetului (0–93)','type'=>'range','min'=>0,'max'=>93,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
+      ['name'=>'lit_q3','label'=>'CCPM','type'=>'range','min'=>0,'max'=>100,'step'=>1,'initial'=>'0','required'=>false],
+      ['name'=>'lit_q4','label'=>'Comprehensiune citire','type'=>'select','choices'=>$choices_pp,'required'=>false],
+      ['name'=>'lit_q5','label'=>'Comprehensiune audiere','type'=>'select','choices'=>$choices_p,'required'=>false],
+      ['name'=>'lit_q6','label'=>'Scris (număr cuvinte pe care le scriu corect)','type'=>'range','min'=>0,'max'=>5,'step'=>1,'initial'=>'0','required'=>false],
+      ['name'=>'lit_q7','label'=>'Noțiunea despre textul tipărit (0–6)','type'=>'range','min'=>0,'max'=>6,'step'=>1,'initial'=>'0','required'=>false,'cond'=>$condPP],
+      ['name'=>'lit_q8','label'=>'Recunoașterea și reproducerea alfabetului (0–93)','type'=>'range','min'=>0,'max'=>93,'step'=>1,'initial'=>'0','required'=>false,'cond'=>$condPP],
       ['name'=>'lit_q9','label'=>'Noțiunea de cuvânt (0–12)','type'=>'range','min'=>0,'max'=>12,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
-      ['name'=>'lit_q10','label'=>'Segmentarea fonemică (0–22)','type'=>'range','min'=>0,'max'=>22,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
-      ['name'=>'lit_q11','label'=>'Recunoașterea cuvintelor (0–12)','type'=>'range','min'=>0,'max'=>12,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
+      ['name'=>'lit_q10','label'=>'Segmentarea fonemică (0–22)','type'=>'range','min'=>0,'max'=>22,'step'=>1,'initial'=>'0','required'=>false,'cond'=>$condPP],
+      ['name'=>'lit_q11','label'=>'Recunoașterea cuvintelor (0–12)','type'=>'range','min'=>0,'max'=>12,'step'=>1,'initial'=>'0','required'=>false,'cond'=>$condPP],
       ['name'=>'lit_q12','label'=>'Scrierea cuvintelor (0–5)','type'=>'range','min'=>0,'max'=>5,'step'=>1,'initial'=>'0','required'=>true,'cond'=>$condPP],
     ];
   }

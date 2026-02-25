@@ -6,7 +6,7 @@
  *   - $gen_lit_levels, $gen_lit_levels_delta_avg, $gen_lit_levels_delta_avg_color
  *   - $gen_lit_completion_avg_overall
  *
- *  Notă: Secțiunea de elevi își calculează singură datele din $rowsRaw și edu_students.
+ *  Notă: Secțiunea de elevi își calculează singură datele din $rowsRaw și edu_students. 
  */
 
 if (!defined('ABSPATH')) exit;
@@ -114,12 +114,12 @@ $pillcompp = ($dComp===null? null : ($dComp<0?'red':'green'));
       <div class="grid grid-cols-1 gap-2 mt-2 text-sm">
         <div class="flex items-center justify-between">
           <span class="text-slate-500">Elevi cu rezultate</span>
-          <span class="font-semibold"><?= intval($gen_lit_stage['t0']['students'] ?? 0) ?></span>
+          <span class="font-semibold"><?= intval($gen_lit_stage['t0']['students'] ?? 0) ?> / <?= intval($total_students ?? 0) ?></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500">Grad completare ~</span>
           <span class="font-semibold">
-            <?= isset($gen_lit_stage['t0']['completion_avg']) ? intval(round($gen_lit_stage['t0']['completion_avg'])) . '%' : '—' ?>
+            <?= isset($gen_lit_stage['t0']['completion_avg']) ? number_format($gen_lit_stage['t0']['completion_avg'], 2) . '%' : '—' ?>
           </span>
         </div>
         <div class="flex items-center justify-between">
@@ -159,13 +159,13 @@ $pillcompp = ($dComp===null? null : ($dComp<0?'red':'green'));
 
       <div class="grid grid-cols-1 gap-2 mt-2 text-sm">
         <div class="flex items-center justify-between">
-          <span class="text-slate-500">Elevi cu rezultat</span>
-          <span class="font-semibold"><?= intval($gen_lit_stage['t1']['students'] ?? 0) ?></span>
+          <span class="text-slate-500">Elevi cu rezultate</span>
+          <span class="font-semibold"><?= intval($gen_lit_stage['t1']['students'] ?? 0) ?> / <?= intval($total_students ?? 0) ?></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500">Grad completare ~</span>
           <span class="font-semibold">
-            <?= isset($gen_lit_stage['t1']['completion_avg']) ? intval(round($gen_lit_stage['t1']['completion_avg'])) . '%' : '—' ?>
+            <?= isset($gen_lit_stage['t1']['completion_avg']) ? number_format($gen_lit_stage['t1']['completion_avg'], 2) . '%' : '—' ?>
           </span>
         </div>
         <div class="flex items-center justify-between">
@@ -201,7 +201,7 @@ $pillcompp = ($dComp===null? null : ($dComp<0?'red':'green'));
           <span class="text-slate-500">Medie Completare</span>
           <div class="flex items-center font-semibold gap-x-2">
             <span><?= gen_delta_chip($dCompl) ?></span>
-            <?= isset($gen_lit_completion_avg_overall) ? intval(round($gen_lit_completion_avg_overall)).'%' : '—' ?>
+            <?= isset($gen_lit_completion_avg_overall_decimal) ? number_format($gen_lit_completion_avg_overall_decimal, 2).'%' : '—' ?>
           </div>
         </div>
 
@@ -494,7 +494,7 @@ $cell_level_label = function($val){
           <?php foreach ($rows_students as $row): ?>
             <?php
               $sid   = (int)$row['id'];
-              $url   = esc_url( home_url('/panou/elev/'.$sid) ); // link la raport individual
+              $url   = esc_url( home_url('/panou/raport/elev/'.$sid) ); // link la raport individual
               $t0acc = $cell_level_label($row['acc0']);
               $t0cmp = $cell_level_label($row['comp0']);
               $t1acc = $cell_level_label($row['acc1']);

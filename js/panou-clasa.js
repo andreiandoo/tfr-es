@@ -794,30 +794,38 @@ jQuery(function ($) {
       }
       const min = q.min ?? 0,
         max = q.max ?? 10,
-        step = q.step ?? "1",
-        init = q.initial ?? min;
+        step = q.step ?? "1";
       return `
         <div class="question-wrapper py-3 flex items-center gap-x-4 justify-between" ${req} ${cond}>
           <label class="flex-1 question-label block text-sm font-medium mb-2">${this.esc(
             q.label
           )} <span class="ml-2 text-xs text-gray-500">(${min}–${max})</span></label>
           <div class="flex-1 flex items-center justify-end gap-3">
-            <input type="range" name="${this.esc(
+            <input type="number" name="${this.esc(
               q.name
             )}" min="${min}" max="${max}" step="${this.esc(
         step
-      )}" value="${this.esc(init)}" class="w-64">
-            <output class="px-2 py-0.5 text-xs border rounded">${this.esc(
-              init
-            )}</output>
+      )}" placeholder="0" class="w-32 px-3 py-1 text-sm border rounded border-slate-300 text-sky-800">
           </div>
         </div>`;
     },
 
     renderForm(schema, studentId, modulSlug, levelLabel, studentName) {
       const qs = Array.isArray(schema?.questions) ? schema.questions : [];
+      let sectionBreakInserted = false;
       const body = qs
-        .map((q, i) => this.qToHtml(q, i < qs.length - 1))
+        .map((q, i) => {
+          let prefix = "";
+          if (!sectionBreakInserted && q.cond) {
+            sectionBreakInserted = true;
+            const condField = q.cond.field || "";
+            const condVals = (q.cond.values || []).join("|");
+            prefix = `<div class="cond-break py-4 my-2 border-t-2 border-dashed border-amber-300 bg-amber-50 rounded-lg px-4" data-cond-field="${this.esc(condField)}" data-cond-values="${this.esc(condVals)}">
+              <p class="text-sm font-semibold text-amber-800">Elev identificat cu recomandare de intervenție remedială, aplicați și evaluarea de nivel Clasa Pregătitoare</p>
+            </div>`;
+          }
+          return prefix + this.qToHtml(q, i < qs.length - 1);
+        })
         .join("");
       const stage = /-t1$/i.test(modulSlug) ? "T1" : "T0";
       const displayName = (studentName && String(studentName).trim())
@@ -885,13 +893,7 @@ jQuery(function ($) {
     },
 
     updateRangesLive($form) {
-      $form.find('input[type="range"]').each(function () {
-        const $r = $(this);
-        const $out = $r.parent().find("output");
-        const upd = () => $out.val($r.val());
-        $r.on("input change", upd);
-        upd();
-      });
+      // number inputs don't need output sync
     },
 
     updateProgress() {
@@ -902,8 +904,8 @@ jQuery(function ($) {
       const ans = $wraps.filter(function () {
         const $w = $(this);
         if ($w.find('input[type="radio"]:checked').length) return true;
-        const $r = $w.find('input[type="range"]');
-        if ($r.length) return $r.val() !== "" && $r.val() !== null;
+        const $n = $w.find('input[type="number"]');
+        if ($n.length) return $n.val() !== "" && $n.val() !== null;
         const $s = $w.find("select");
         if ($s.length) return $s.val() !== "" && $s.val() !== null;
         return false;
@@ -922,7 +924,7 @@ jQuery(function ($) {
 
       const applyAll = () => {
         $form
-          .find(".question-wrapper")
+          .find(".question-wrapper, .cond-break")
           .each((_, el) => this.visibleByCond($form, $(el)));
         this.updateProgress();
       };
@@ -965,7 +967,7 @@ jQuery(function ($) {
               if (!req) return;
               const hasRadio =
                 $w.find('input[type="radio"]:checked').length > 0;
-              const $r = $w.find('input[type="range"]');
+              const $r = $w.find('input[type="number"]');
               const hasRange = $r.length && $r.val() !== "";
               const $s = $w.find("select");
               const hasSel = $s.length && $s.val() !== "";
@@ -1015,7 +1017,7 @@ jQuery(function ($) {
             const val = $inp.val();
             fd.append(name, val ?? "");
 
-            if ($inp.is('[type="range"]')) {
+            if ($inp.is('[type="number"]')) {
               const max = Number($inp.attr("max") || 0);
               const v = Number(val || 0);
               if (isFinite(v)) scoreSum += v;
@@ -1081,7 +1083,7 @@ jQuery(function ($) {
   // ——————————————————————————————
   function isAnswered($w) {
     if ($w.find('input[type="radio"]:checked').length) return true;
-    const r = $w.find('input[type="range"]');
+    const r = $w.find('input[type="number"]');
     if (r.length) return r.val() !== "" && r.val() !== null;
     const s = $w.find("select");
     if (s.length) return s.val() !== "" && s.val() !== null;
@@ -1120,7 +1122,7 @@ jQuery(function ($) {
   }
   $(document).on(
     "input change",
-    "#questionnaireForm input[type=range], #questionnaireForm select, #questionnaireForm input[type=radio]",
+    "#questionnaireForm input[type=number], #questionnaireForm select, #questionnaireForm input[type=radio]",
     function () {
       const $w = $(this).closest(".question-wrapper");
       $w.removeClass("border border-red-500");

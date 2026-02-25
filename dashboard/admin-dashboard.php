@@ -51,7 +51,7 @@ function ad_fmt_dt($ts_or_str){
   if (!$ts_or_str) return '—';
   $ts = is_numeric($ts_or_str) ? (int)$ts_or_str : strtotime($ts_or_str);
   if (!$ts) return '—';
-  return date_i18n(get_option('date_format').' '.get_option('time_format'), $ts);
+  return date_i18n(str_replace('Y', "\'y", get_option('date_format')), $ts) . ' <span class="mobile:block">' . date_i18n(get_option('time_format'), $ts) . '</span>';
 }
 
 /** Count users by WP role */
@@ -166,8 +166,13 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
 
   <!-- Header -->
   <div class="relative flex flex-col items-start justify-between gap-4 px-6 py-4 mb-8 md:flex-row md:items-center">
-    <div>
+    <div class="flex items-center justify-between w-full gap-x-4">
       <h1 class="text-3xl tracking-tight text-white">Buna <span class="font-bold"><?php echo $user_fname;?></span></h1>
+      <!-- FAB + Modal (mobile only) -->
+      <button id="fab-actions" type="button" class="hidden mobile:flex items-center justify-center text-white rounded-full shadow-lg md:hidden bottom-6 right-6 w-14 h-14 bg-es-orange hover:bg-orange-600 active:scale-95" aria-label="Meniu acțiuni">
+        <svg id="fab-icon-menu" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="fab-icon-close" class="hidden w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
 
     <!-- Action bar (desktop only) -->
@@ -205,12 +210,6 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
         Rapoarte
       </a>
     </div>
-
-    <!-- FAB + Modal (mobile only) -->
-    <button id="fab-actions" type="button" class="fixed z-50 flex items-center justify-center text-white rounded-full shadow-lg md:hidden bottom-6 right-6 w-14 h-14 bg-es-orange hover:bg-orange-600 active:scale-95" aria-label="Meniu acțiuni">
-      <svg id="fab-icon-menu" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <svg id="fab-icon-close" class="hidden w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
 
     <div id="fab-modal" class="fixed inset-0 z-40 hidden md:hidden">
       <div id="fab-backdrop" class="absolute inset-0 bg-black/50"></div>
@@ -272,7 +271,7 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
   </div>
 
   <!-- KPI Cards: luxury glass + interactive states -->
-  <div class="grid grid-cols-1 gap-4 px-12 mb-8 sm:grid-cols-2 lg:grid-cols-6">
+  <div class="grid grid-cols-2 gap-4 px-12 mb-8 sm:grid-cols-2 lg:grid-cols-6 mobile:px-4">
     <!-- Utilizatori total -->
     <a href="<?php echo esc_url( home_url('/panou/utilizatori') ); ?>" class="relative block group">
       <div class="p-5 transition-all border shadow-sm bg-white/80 backdrop-blur rounded-2xl border-slate-200 ring-1 ring-white/60 group-hover:shadow-lg">
@@ -334,7 +333,7 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
   </div>
 
   <!-- Două coloane: Ultima activitate profesori & tutori -->
-  <div class="grid grid-cols-1 gap-6 px-12 lg:grid-cols-2">
+  <div class="grid grid-cols-1 gap-6 px-12 lg:grid-cols-2 mobile:px-4 mobile:pb-12">
     <!-- Ultimii profesori activi -->
     <div class="p-6 border shadow-sm bg-white/80 backdrop-blur rounded-2xl border-slate-200 ring-1 ring-white/60">
       <div class="flex items-center justify-between mb-3">
@@ -359,7 +358,7 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
                   <div class="text-xs truncate text-slate-500"><?php echo esc_html($row['email']); ?></div>
                 </div>
               </div>
-              <div class="text-xs font-medium text-slate-600"><?php echo esc_html( ad_fmt_dt($row['last']) ); ?></div>
+              <div class="text-xs font-medium text-slate-600 mobile:text-right"><?php echo wp_kses( ad_fmt_dt($row['last']), ['span' => ['class' => []]] ); ?></div>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -392,7 +391,7 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
                   <div class="text-xs truncate text-slate-500"><?php echo esc_html($row['email']); ?></div>
                 </div>
               </div>
-              <div class="text-xs font-medium text-slate-600"><?php echo esc_html( ad_fmt_dt($row['last']) ); ?></div>
+              <div class="text-xs font-medium text-slate-600 mobile:text-right"><?php echo wp_kses( ad_fmt_dt($row['last']), ['span' => ['class' => []]] ); ?></div>
             </li>
           <?php endforeach; ?>
         </ul>
@@ -403,7 +402,7 @@ $last_tutori    = ad_last_active_users_by_role('tutor', 8);
   </div>
 
   <?php if ($debug): ?>
-    <div class="p-4 px-12 mx-auto mt-6 text-xs border border-yellow-200 max-w-7xl bg-yellow-50 rounded-2xl">
+    <div class="p-4 px-12 mx-auto mt-6 text-xs border border-yellow-200 max-w-7xl bg-yellow-50 rounded-2xl mobile:px-4">
       <strong>DEBUG</strong>
       <pre><?php echo esc_html(print_r([
         'total_users'            => $total_users,

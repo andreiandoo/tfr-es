@@ -102,11 +102,24 @@ function edu_delete_student() {
     $student_id = intval($_POST['student_id'] ?? 0);
     $students_table = $wpdb->prefix . 'edu_students';
     $classes_table = $wpdb->prefix . 'edu_classes';
-
-    $class_id = $wpdb->get_var($wpdb->prepare("SELECT class_id FROM $students_table WHERE id = %d", $student_id));
     $current_user_id = get_current_user_id();
 
-    $is_own = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $classes_table WHERE id = %d AND teacher_id = %d", $class_id, $current_user_id));
+    $student = $wpdb->get_row($wpdb->prepare("SELECT class_id, professor_id FROM $students_table WHERE id = %d", $student_id));
+    if (!$student) {
+        wp_send_json_error('Elevul nu a fost găsit.');
+    }
+
+    // Check ownership: either via professor_id (generation system) or class_id (legacy)
+    $is_own = false;
+    if ($student->professor_id && (int)$student->professor_id === $current_user_id) {
+        $is_own = true;
+    } elseif ($student->class_id) {
+        $is_own = (bool)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $classes_table WHERE id = %d AND teacher_id = %d", $student->class_id, $current_user_id));
+    }
+    // Admins can always delete
+    if (!$is_own && current_user_can('manage_options')) {
+        $is_own = true;
+    }
     if (!$is_own) {
         wp_send_json_error('Acces interzis.');
     }

@@ -26,7 +26,7 @@ $ajax_url_teachers     = admin_url('admin-ajax.php');
 $ajax_nonce_teachers   = wp_create_nonce('edu_nonce');
 
 // Filtre
-$s         = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
+$s         = isset($_GET['q']) ? sanitize_text_field(wp_unslash($_GET['q'])) : '';
 $year_f    = isset($_GET['year']) ? sanitize_text_field(wp_unslash($_GET['year'])) : '';
 $level_f   = isset($_GET['level']) ? sanitize_text_field(wp_unslash($_GET['level'])) : '';
 $tutor_id  = isset($_GET['tutor_id']) ? (int)$_GET['tutor_id'] : 0;
@@ -166,7 +166,7 @@ window.__AJAX_NONCE_TEACHERS = '<?php echo esc_js( $ajax_nonce_teachers ); ?>';
       <form id="gen-filter-form" method="get" class="grid items-end grid-cols-1 gap-3 md:grid-cols-12">
           <div class="md:col-span-3">
           <label class="block mb-1 text-xs font-medium text-slate-600">Căutare (generație / profesor / tutor)</label>
-          <input type="text" name="s" id="gen-search-q" value="<?php echo esc_attr($s); ?>"
+          <input type="text" name="q" id="gen-search-q" value="<?php echo esc_attr($s); ?>"
                   placeholder="Tastează pentru a căuta..."
                   autocomplete="off"
                   class="w-full px-3 py-2 text-sm bg-white border shadow-sm rounded-xl border-slate-300 focus:ring-1 focus:ring-sky-700 focus:border-transparent">
@@ -595,7 +595,7 @@ window.__AJAX_NONCE_TEACHERS = '<?php echo esc_js( $ajax_nonce_teachers ); ?>';
   function setPillState(btn, on){
     btn.setAttribute('data-val', on ? '1':'0');
     btn.className = pillClasses(on);
-    const dot = btn.querySelector('span.w-1.5');
+    const dot = btn.querySelector('span.w-1\\.5');
     if (dot) dot.className = 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-white' : 'bg-slate-400');
   }
 

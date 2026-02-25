@@ -428,3 +428,4 @@ $gen_lit_items_order = [
 
 /* medie între etape pentru completare (pt. cardul 3) */
 $gen_lit_completion_avg_overall = avg_non_null([$gen_lit_stage['t0']['completion_avg'],$gen_lit_stage['t1']['completion_avg']]);
+$gen_lit_completion_avg_overall_decimal = $gen_lit_completion_avg_overall;
