@@ -41,18 +41,22 @@ function edu_render_school_manager() {
         $city_id    = intval($_POST['city_id']);
         $village_id = !empty($_POST['village_id']) ? intval($_POST['village_id']) : null;
 
-        // determinare mediul (automat)
-        // regulă: dacă are village_id => rural; altfel dacă city_id are parent_city_id => rural; altfel urban.
-        $mediu = 'urban';
-        if (!empty($village_id)) {
-            $mediu = 'rural';
+        // mediu: din formular (dropdown) cu fallback auto-calc
+        $mediu_post = strtolower($_POST['mediu'] ?? '');
+        if (in_array($mediu_post, ['urban', 'rural'], true)) {
+            $mediu = $mediu_post;
         } else {
-            $city_parent = $wpdb->get_var($wpdb->prepare(
-                "SELECT parent_city_id FROM {$wpdb->prefix}edu_cities WHERE id=%d",
-                $city_id
-            ));
-            if (!is_null($city_parent) && (int)$city_parent > 0) {
+            $mediu = 'urban';
+            if (!empty($village_id)) {
                 $mediu = 'rural';
+            } else {
+                $city_parent = $wpdb->get_var($wpdb->prepare(
+                    "SELECT parent_city_id FROM {$wpdb->prefix}edu_cities WHERE id=%d",
+                    $city_id
+                ));
+                if (!is_null($city_parent) && (int)$city_parent > 0) {
+                    $mediu = 'rural';
+                }
             }
         }
 
@@ -63,13 +67,15 @@ function edu_render_school_manager() {
             'name'              => sanitize_text_field($_POST['name']),
             'short_name'        => sanitize_text_field($_POST['short_name']),
             'regiune_tfr'       => in_array($_POST['regiune_tfr'], ['RMD', 'RCV', 'SUD']) ? $_POST['regiune_tfr'] : 'RMD',
-            'statut'            => sanitize_text_field($_POST['statut']),
+            'statut'            => in_array(($_POST['statut'] ?? ''), ['Cu personalitate juridică', 'Arondată', ''], true) ? $_POST['statut'] : '',
+            'tip'               => in_array(($_POST['tip'] ?? ''), ['Public', 'Privat'], true) ? $_POST['tip'] : null,
+            'first_year_tfr'    => (($_POST['first_year_tfr'] ?? '') !== '' ? sanitize_text_field($_POST['first_year_tfr']) : null),
             'medie_irse'        => ($_POST['medie_irse'] !== '' ? floatval($_POST['medie_irse']) : null),
             'scor_irse'         => ($_POST['scor_irse']  !== '' ? floatval($_POST['scor_irse'])  : null),
             'strategic'         => isset($_POST['strategic']) ? 1 : 0,
 
             // NOI
-            'index_vulnerabilitate_tfr' => (isset($_POST['index_vulnerabilitate_tfr']) && $_POST['index_vulnerabilitate_tfr'] !== '' ? floatval($_POST['index_vulnerabilitate_tfr']) : null),
+            'index_vulnerabilitate_tfr' => (isset($_POST['index_vulnerabilitate_tfr']) && $_POST['index_vulnerabilitate_tfr'] !== '' ? sanitize_text_field($_POST['index_vulnerabilitate_tfr']) : null),
             'numar_elevi_siiir'         => (isset($_POST['numar_elevi_siiir']) && $_POST['numar_elevi_siiir'] !== '' ? intval($_POST['numar_elevi_siiir']) : null),
             'mediu'                     => $mediu,
         ];
@@ -181,7 +187,31 @@ function edu_render_school_manager() {
 
                 echo '<div class="flex flex-col">';
                     echo '<label class="block mb-1">Statut</label>';
-                    echo '<input type="text" name="statut" class="w-full p-2 mb-2 border rounded" value="' . esc_attr($edit_school->statut ?? '') . '">';
+                    echo '<select name="statut" class="w-full p-2 mb-2 border rounded">';
+                    $statut_val = $edit_school->statut ?? '';
+                    echo '<option value="">— Selectează —</option>';
+                    foreach (['Cu personalitate juridică', 'Arondată'] as $sv) {
+                        $sel = ($statut_val === $sv) ? ' selected' : '';
+                        echo '<option value="'.esc_attr($sv).'"'.$sel.'>'.esc_html($sv).'</option>';
+                    }
+                    echo '</select>';
+                echo '</div>';
+
+                echo '<div class="flex flex-col">';
+                    echo '<label class="block mb-1">Tip</label>';
+                    echo '<select name="tip" class="w-full p-2 mb-2 border rounded">';
+                    $tip_val = $edit_school->tip ?? '';
+                    echo '<option value="">— Selectează —</option>';
+                    foreach (['Public', 'Privat'] as $tv) {
+                        $sel = ($tip_val === $tv) ? ' selected' : '';
+                        echo '<option value="'.esc_attr($tv).'"'.$sel.'>'.esc_html($tv).'</option>';
+                    }
+                    echo '</select>';
+                echo '</div>';
+
+                echo '<div class="flex flex-col">';
+                    echo '<label class="block mb-1">Primul an TFR</label>';
+                    echo '<input type="text" name="first_year_tfr" class="w-full p-2 mb-2 border rounded" placeholder="ex: 2024-2025" value="' . esc_attr($edit_school->first_year_tfr ?? '') . '">';
                 echo '</div>';
 
             echo '</div>'; // end col 2
@@ -206,7 +236,14 @@ function edu_render_school_manager() {
                 // Index vulnerabilitate TFR
                 echo '<div class="flex flex-col">';
                 echo '  <label for="index_vulnerabilitate_tfr" class="block mb-1">Index vulnerabilitate TFR</label>';
-                echo '  <input type="number" step="0.001" id="index_vulnerabilitate_tfr" name="index_vulnerabilitate_tfr" class="w-full p-2 mb-2 border rounded" value="' . ( isset($edit_school) ? esc_attr($edit_school->index_vulnerabilitate_tfr ?? '') : '' ) . '">';
+                echo '  <select id="index_vulnerabilitate_tfr" name="index_vulnerabilitate_tfr" class="w-full p-2 mb-2 border rounded">';
+                $idx_val = isset($edit_school) ? (string)($edit_school->index_vulnerabilitate_tfr ?? '') : '';
+                echo '    <option value="">— Selectează —</option>';
+                foreach (['1','2','3','3NO','4','5'] as $iv) {
+                    $sel = ($idx_val === $iv) ? ' selected' : '';
+                    echo '    <option value="'.esc_attr($iv).'"'.$sel.'>'.esc_html($iv).'</option>';
+                }
+                echo '  </select>';
                 echo '</div>';
 
                 // Număr elevi SIIIR
@@ -215,10 +252,17 @@ function edu_render_school_manager() {
                 echo '  <input type="number" step="1" min="0" id="numar_elevi_siiir" name="numar_elevi_siiir" class="w-full p-2 mb-2 border rounded" value="' . ( isset($edit_school) ? esc_attr($edit_school->numar_elevi_siiir ?? '') : '' ) . '">';
                 echo '</div>';
 
-                // Mediu (auto, read-only)
+                // Mediu
                 echo '<div class="flex flex-col">';
-                echo '  <label for="mediu_display" class="block mb-1">Mediu</label>';
-                echo '  <input type="text" id="mediu_display" name="mediu_display" class="w-full p-2 mb-2 border rounded" value="' . ( isset($edit_school) ? esc_attr($edit_school->mediu ?? 'urban') : 'urban' ) . '" readonly>';
+                echo '  <label for="mediu" class="block mb-1">Mediu</label>';
+                echo '  <select id="mediu" name="mediu" class="w-full p-2 mb-2 border rounded">';
+                $mediu_val = isset($edit_school) ? ($edit_school->mediu ?? '') : '';
+                echo '    <option value="">— Selectează —</option>';
+                foreach (['urban' => 'Urban', 'rural' => 'Rural'] as $mk => $ml) {
+                    $sel = ($mediu_val === $mk) ? ' selected' : '';
+                    echo '    <option value="'.esc_attr($mk).'"'.$sel.'>'.esc_html($ml).'</option>';
+                }
+                echo '  </select>';
                 echo '</div>';
 
                 echo '<div class="flex items-center">';

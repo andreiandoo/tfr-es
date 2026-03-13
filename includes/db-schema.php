@@ -231,10 +231,15 @@ if (!function_exists('edu_schools_add_columns_tfr_siiir_mediu')) {
       return (bool) $wpdb->get_var( $wpdb->prepare("SHOW COLUMNS FROM {$tbl} LIKE %s", $col) );
     };
 
-    // index_vulnerabilitate_tfr
+    // index_vulnerabilitate_tfr — VARCHAR(10) pt valori ca "3NO"
     if (!$col_exists('index_vulnerabilitate_tfr')) {
-      // poți folosi DECIMAL(6,3) dacă vrei mai multă precizie
-      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN index_vulnerabilitate_tfr FLOAT NULL AFTER strategic");
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN index_vulnerabilitate_tfr VARCHAR(10) NULL AFTER strategic");
+    } else {
+      // migrare de la FLOAT la VARCHAR(10) dacă e necesar
+      $col_info = $wpdb->get_row("SHOW COLUMNS FROM {$tbl} LIKE 'index_vulnerabilitate_tfr'");
+      if ($col_info && stripos($col_info->Type, 'float') !== false) {
+        $wpdb->query("ALTER TABLE {$tbl} MODIFY COLUMN index_vulnerabilitate_tfr VARCHAR(10) NULL");
+      }
     }
 
     // numar_elevi_siiir
@@ -244,8 +249,17 @@ if (!function_exists('edu_schools_add_columns_tfr_siiir_mediu')) {
 
     // mediu
     if (!$col_exists('mediu')) {
-      // dacă ENUM nu îți place, schimbă în VARCHAR(10) fără probleme
       $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN mediu ENUM('urban','rural') NULL AFTER numar_elevi_siiir");
+    }
+
+    // tip (Public / Privat)
+    if (!$col_exists('tip')) {
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN tip VARCHAR(20) NULL AFTER statut");
+    }
+
+    // first_year_tfr (ex: 2024-2025)
+    if (!$col_exists('first_year_tfr')) {
+      $wpdb->query("ALTER TABLE {$tbl} ADD COLUMN first_year_tfr VARCHAR(20) NULL AFTER tip");
     }
   }
 }

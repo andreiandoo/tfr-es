@@ -39,7 +39,7 @@ function edu_render_import_interface() {
                 // 0: judet, 1: oras, 2: sat, 3: cod, 4: name, 5: short, 6: location, 7: superior_location,
                 // 8: regiune_tfr, 9: statut, 10: medie_irse, 11: scor_irse, 12: strategic
                 // (opțional)
-                // 13: index_vulnerabilitate_tfr, 14: numar_elevi_siiir
+                // 13: index_vulnerabilitate_tfr, 14: numar_elevi_siiir, 15: tip, 16: first_year_tfr
 
                 $judet     = isset($data[0]) ? sanitize_text_field($data[0]) : '';
                 $oras      = isset($data[1]) ? sanitize_text_field($data[1]) : '';
@@ -56,8 +56,10 @@ function edu_render_import_interface() {
                 $strategic = isset($data[12]) && intval($data[12]) === 1 ? 1 : 0;
 
                 // NOU (opțional, dacă nu vin în CSV, rămân NULL):
-                $index_vulnerabilitate_tfr = isset($data[13]) && $data[13] !== '' ? floatval($data[13]) : null;
+                $index_vulnerabilitate_tfr = isset($data[13]) && $data[13] !== '' ? sanitize_text_field($data[13]) : null;
                 $numar_elevi_siiir         = isset($data[14]) && $data[14] !== '' ? intval($data[14])   : null;
+                $tip                       = isset($data[15]) ? sanitize_text_field($data[15]) : null;
+                $first_year_tfr            = isset($data[16]) ? sanitize_text_field($data[16]) : null;
 
                 // Validări minime
                 if ($judet === '' || $oras === '' || $cod === 0 || $name === '') {
@@ -142,6 +144,8 @@ function edu_render_import_interface() {
                     // NOI:
                     'index_vulnerabilitate_tfr' => $index_vulnerabilitate_tfr,
                     'numar_elevi_siiir'         => $numar_elevi_siiir,
+                    'tip'                       => $tip,
+                    'first_year_tfr'            => $first_year_tfr,
                     'mediu'                     => $mediu,
                 ],
                 // Formate (facultativ, wpdb mapează corect și fără ele; dacă vrei strict):
