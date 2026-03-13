@@ -64,7 +64,7 @@ $rows = !empty($params) ? $wpdb->get_results($wpdb->prepare($sql, $params))
 $headers = [
   'ID', 'Cod SIIIR', 'Denumire', 'Denumire scurtă',
   'Județ', 'Oraș', 'Comună/Sat', 'Mediu',
-  'Regiune TFR', 'Statut',
+  'Regiune TFR', 'Statut', 'Tip', 'Primul an TFR',
   'Medie IRSE', 'Scor IRSE', 'Strategică',
   'Index vulnerabilitate TFR', 'Număr elevi SIIIR'
 ];
@@ -85,10 +85,12 @@ foreach ($rows as $r) {
     $mediu,
     ($r->regiune_tfr ?: ''),
     ($r->statut ?: ''),
+    ($r->tip ?? ''),
+    ($r->first_year_tfr ?? ''),
     ($r->medie_irse !== null ? (float)$r->medie_irse : ''),
     ($r->scor_irse  !== null ? (float)$r->scor_irse  : ''),
     ((int)$r->strategic === 1 ? 'Da' : 'Nu'),
-    ($r->index_vulnerabilitate_tfr !== null ? (float)$r->index_vulnerabilitate_tfr : ''),
+    ($r->index_vulnerabilitate_tfr !== null ? (string)$r->index_vulnerabilitate_tfr : ''),
     ($r->numar_elevi_siiir !== null ? (int)$r->numar_elevi_siiir : ''),
   ];
 }

@@ -31,16 +31,27 @@ if ($can_manage && !empty($_POST['school_action']) && $_POST['school_action'] ==
     $name       = sanitize_text_field($_POST['name'] ?? '');
     $short_name = sanitize_text_field($_POST['short_name'] ?? '');
     $regiune    = in_array(($_POST['regiune_tfr'] ?? 'RMD'), ['RMD','RCV','SUD'], true) ? $_POST['regiune_tfr'] : 'RMD';
-    $statut     = sanitize_text_field($_POST['statut'] ?? '');
+    $statut_vals = ['Cu personalitate juridică', 'Arondată', ''];
+    $statut     = in_array(($_POST['statut'] ?? ''), $statut_vals, true) ? $_POST['statut'] : '';
+    $tip_vals   = ['Public', 'Privat', ''];
+    $tip        = in_array(($_POST['tip'] ?? ''), $tip_vals, true) ? $_POST['tip'] : '';
+    $first_year_tfr = sanitize_text_field($_POST['first_year_tfr'] ?? '');
     $medie_irse = ($_POST['medie_irse'] !== '' ? (float)$_POST['medie_irse'] : null);
     $scor_irse  = ($_POST['scor_irse']  !== '' ? (float)$_POST['scor_irse']  : null);
     $strategic  = !empty($_POST['strategic']) ? 1 : 0;
-    $idx_tfr    = (isset($_POST['index_vulnerabilitate_tfr']) && $_POST['index_vulnerabilitate_tfr'] !== '' ? (float)$_POST['index_vulnerabilitate_tfr'] : null);
+    $idx_tfr_vals = ['1','2','3','3NO','4','5',''];
+    $idx_tfr    = in_array(($_POST['index_vulnerabilitate_tfr'] ?? ''), $idx_tfr_vals, true) ? ($_POST['index_vulnerabilitate_tfr'] ?: null) : null;
     $nr_siiir   = (isset($_POST['numar_elevi_siiir']) && $_POST['numar_elevi_siiir'] !== '' ? (int)$_POST['numar_elevi_siiir'] : null);
 
-    // mediu = rural dacă e selectat sat SAU dacă orașul are parent_city_id > 0; altfel urban
-    $parent_id = $city_id ? (int)$wpdb->get_var($wpdb->prepare("SELECT parent_city_id FROM {$tbl_cities} WHERE id=%d", $city_id)) : 0;
-    $mediu     = ($village_id > 0 || $parent_id > 0) ? 'rural' : 'urban';
+    // mediu: din formular (dropdown) cu fallback auto-calc
+    $mediu_vals = ['urban', 'rural'];
+    $mediu_post = strtolower($_POST['mediu'] ?? '');
+    if (in_array($mediu_post, $mediu_vals, true)) {
+      $mediu = $mediu_post;
+    } else {
+      $parent_id = $city_id ? (int)$wpdb->get_var($wpdb->prepare("SELECT parent_city_id FROM {$tbl_cities} WHERE id=%d", $city_id)) : 0;
+      $mediu     = ($village_id > 0 || $parent_id > 0) ? 'rural' : 'urban';
+    }
 
     if ($city_id > 0 && $name !== '') {
       $data = [
@@ -51,6 +62,8 @@ if ($can_manage && !empty($_POST['school_action']) && $_POST['school_action'] ==
         'short_name'                => $short_name,
         'regiune_tfr'               => $regiune,
         'statut'                    => $statut,
+        'tip'                       => ($tip ?: null),
+        'first_year_tfr'            => ($first_year_tfr ?: null),
         'medie_irse'                => $medie_irse,
         'scor_irse'                 => $scor_irse,
         'strategic'                 => $strategic,
@@ -235,6 +248,9 @@ $export_base = add_query_arg([
             <th class="px-3 py-2 font-semibold text-left border-b">Mediu</th>
             <th class="px-3 py-2 font-semibold text-left border-b">Regiune</th>
             <th class="px-3 py-2 font-semibold text-left border-b">Statut</th>
+            <th class="px-3 py-2 font-semibold text-left border-b">Tip</th>
+            <th class="px-3 py-2 font-semibold text-left border-b">Primul an TFR</th>
+            <th class="px-3 py-2 font-semibold text-left border-b">Idx. Vuln.</th>
             <th class="px-3 py-2 font-semibold text-left border-b">Medie IRSE</th>
             <th class="px-3 py-2 font-semibold text-left border-b">Scor IRSE</th>
             <th class="px-3 py-2 font-semibold text-left border-b">Strategică</th>
@@ -254,10 +270,15 @@ $export_base = add_query_arg([
               'city_id'   => (int)$r->city_id,
               'village_id'=> (int)($r->village_id ?? 0),
               'regiune_tfr'=>(string)$r->regiune_tfr,
-              'statut'    => (string)$r->statut,
+              'statut'    => (string)($r->statut ?? ''),
+              'tip'       => (string)($r->tip ?? ''),
+              'first_year_tfr' => (string)($r->first_year_tfr ?? ''),
               'medie_irse'=> $r->medie_irse,
               'scor_irse' => $r->scor_irse,
               'strategic' => (int)$r->strategic,
+              'index_vulnerabilitate_tfr' => (string)($r->index_vulnerabilitate_tfr ?? ''),
+              'numar_elevi_siiir' => $r->numar_elevi_siiir,
+              'mediu' => (string)($r->mediu ?? ''),
             ];
             $json = wp_json_encode($row);
             $search_blob = strtolower(trim(
@@ -294,6 +315,9 @@ $export_base = add_query_arg([
             </td>
             <td class="px-3 py-2"><?php echo $r->regiune_tfr ? esc_html($r->regiune_tfr) : '—'; ?></td>
             <td class="px-3 py-2"><?php echo $r->statut ? esc_html($r->statut) : '—'; ?></td>
+            <td class="px-3 py-2"><?php echo ($r->tip ?? '') ? esc_html($r->tip) : '—'; ?></td>
+            <td class="px-3 py-2"><?php echo ($r->first_year_tfr ?? '') ? esc_html($r->first_year_tfr) : '—'; ?></td>
+            <td class="px-3 py-2"><?php echo ($r->index_vulnerabilitate_tfr ?? '') !== '' && $r->index_vulnerabilitate_tfr !== null ? esc_html($r->index_vulnerabilitate_tfr) : '—'; ?></td>
             <td class="px-3 py-2"><?php echo ($r->medie_irse !== null) ? esc_html($r->medie_irse) : '—'; ?></td>
             <td class="px-3 py-2"><?php echo ($r->scor_irse  !== null) ? esc_html($r->scor_irse)  : '—'; ?></td>
             <td class="px-3 py-2"><?php echo $r->strategic ? '✅' : '—'; ?></td>
@@ -310,7 +334,7 @@ $export_base = add_query_arg([
             <?php endif; ?>
           </tr>
           <?php endforeach; else: ?>
-          <tr><td colspan="<?php echo $can_manage ? 14 : 13; ?>" class="px-4 py-6 text-center text-slate-500">Nu s-au găsit școli.</td></tr>
+          <tr><td colspan="<?php echo $can_manage ? 17 : 16; ?>" class="px-4 py-6 text-center text-slate-500">Nu s-au găsit școli.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
@@ -402,7 +426,34 @@ $export_base = add_query_arg([
           </div>
           <div>
             <label class="block mb-1 text-xs font-medium text-slate-700">Statut</label>
-            <input type="text" name="statut" x-model="form.statut"
+            <select name="statut" x-model="form.statut"
+                    class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
+              <option value="">— Selectează —</option>
+              <option value="Cu personalitate juridică">Cu personalitate juridică</option>
+              <option value="Arondată">Arondată</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-medium text-slate-700">Tip</label>
+            <select name="tip" x-model="form.tip"
+                    class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
+              <option value="">— Selectează —</option>
+              <option value="Public">Public</option>
+              <option value="Privat">Privat</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-medium text-slate-700">Mediu</label>
+            <select name="mediu" x-model="form.mediu"
+                    class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
+              <option value="">— Selectează —</option>
+              <option value="urban">Urban</option>
+              <option value="rural">Rural</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-medium text-slate-700">Primul an TFR</label>
+            <input type="text" name="first_year_tfr" x-model="form.first_year_tfr" placeholder="ex: 2024-2025"
                    class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
           </div>
         </div>
@@ -427,8 +478,16 @@ $export_base = add_query_arg([
           </div>
           <div>
             <label class="block mb-1 text-xs font-medium text-slate-700">Index vulnerabilitate TFR</label>
-            <input type="number" step="0.001" name="index_vulnerabilitate_tfr" x-model="form.index_vulnerabilitate_tfr"
-                   class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
+            <select name="index_vulnerabilitate_tfr" x-model="form.index_vulnerabilitate_tfr"
+                    class="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-300 focus:ring-2 focus:ring-slate-800">
+              <option value="">— Selectează —</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="3NO">3NO</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
           </div>
           <div>
             <label class="block mb-1 text-xs font-medium text-slate-700">Număr elevi SIIIR</label>
@@ -466,7 +525,7 @@ function schoolsPage(){
     form: {
       id: 0, cod: '', name: '', short_name: '',
       county_id: 0, city_id: 0, village_id: 0,
-      regiune_tfr: 'RMD', statut: '',
+      regiune_tfr: 'RMD', statut: '', tip: '', mediu: '', first_year_tfr: '',
       medie_irse: '', scor_irse: '',
       strategic: 0,
       index_vulnerabilitate_tfr: '',
@@ -617,6 +676,9 @@ function schoolsPage(){
         village_id: 0,
         regiune_tfr: 'RMD',
         statut: '',
+        tip: '',
+        mediu: '',
+        first_year_tfr: '',
         medie_irse: '',
         scor_irse: '',
         strategic: 0,
@@ -637,6 +699,9 @@ function schoolsPage(){
         village_id: row.village_id || 0,
         regiune_tfr: row.regiune_tfr || 'RMD',
         statut: row.statut || '',
+        tip: row.tip || '',
+        mediu: row.mediu || '',
+        first_year_tfr: row.first_year_tfr || '',
         medie_irse: (row.medie_irse ?? ''),
         scor_irse: (row.scor_irse ?? ''),
         strategic: row.strategic || 0,
