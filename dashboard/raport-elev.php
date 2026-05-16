@@ -201,6 +201,20 @@ $fileSelPdf = $fileSelPdf ?? '';
         </button>
       <?php } ?>
 
+      <!-- Export PDF SEL / LIT pentru elev -->
+      <?php if (function_exists('edu_student_pdf_url')) { ?>
+        <a href="<?= esc_url(edu_student_pdf_url((int)$student_id, 'sel')) ?>"
+           class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white rounded-md hover:bg-slate-700">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Export PDF SEL
+        </a>
+        <a href="<?= esc_url(edu_student_pdf_url((int)$student_id, 'lit')) ?>"
+           class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white rounded-md hover:bg-slate-700">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Export PDF LIT
+        </a>
+      <?php } ?>
+
       <a href="../documentatie/#profesori" target="_blank" rel="noopener noreferrer"
       class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white rounded-md hover:bg-slate-700">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3">

@@ -2009,49 +2009,279 @@ function edu_export_generation_pdf() {
         wp_die('Nu ai permisiunea să exporți acest raport.', 'Acces restricționat', 403);
     }
 
-    // HTML pentru PDF
-    $html = edu_render_generation_pdf_html($generation_id, $module);
+    // PHP 8+ emite zeci de E_DEPRECATED din dompdf 2.0.4 la render. Cu display_errors=on,
+    // acele warning-uri ajung în output ÎNAINTEA header-elor PDF -> browser nu primește PDF-ul.
+    $prev_error_reporting = error_reporting();
+    error_reporting($prev_error_reporting & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE & ~E_WARNING);
+    @ini_set('display_errors', '0');
+    @ini_set('html_errors', '0');
 
-    if (!class_exists(\Dompdf\Dompdf::class)) {
-        wp_die('Dompdf nu este încărcat. Verifică /lib/dompdf-2.0.4/dompdf/autoload.inc.php.', 'Dompdf indisponibil', 500);
+    // Capturăm tot output-ul (warning-uri, BOM-uri din plugin-uri, etc.) ca să-l aruncăm
+    // înainte de a trimite header-ele PDF.
+    while (ob_get_level() > 0) { ob_end_clean(); }
+    ob_start();
+
+    try {
+        $html = edu_render_generation_pdf_html($generation_id, $module);
+
+        if (!class_exists(\Dompdf\Dompdf::class)) {
+            throw new \RuntimeException('Dompdf nu este încărcat. Verifică /lib/dompdf-2.0.4/dompdf/autoload.inc.php.');
+        }
+
+        // DOMPDF 2.0.4 – I/O dirs (Windows safe)
+        $uploads     = wp_get_upload_dir();
+        $baseUploads = rtrim($uploads['basedir'] ?? (WP_CONTENT_DIR . '/uploads'), DIRECTORY_SEPARATOR);
+        $temp_dir    = $baseUploads . '/dompdf_tmp';
+        $font_cache  = $baseUploads . '/dompdf_font_cache';
+        $log_file    = $baseUploads . '/dompdf_log.html';
+
+        if (!function_exists('wp_mkdir_p')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        wp_mkdir_p($temp_dir);
+        wp_mkdir_p($font_cache);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('chroot', ABSPATH);
+        $options->set('tempDir', $temp_dir);
+        $options->set('fontCache', $font_cache);
+        $options->set('logOutputFile', $log_file);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->render();
+        $pdfBytes = $dompdf->output();
+    } catch (\Throwable $e) {
+        @ob_end_clean();
+        error_reporting($prev_error_reporting);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[EDU-PDF] EXCEPTION: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            error_log('[EDU-PDF] TRACE: ' . $e->getTraceAsString());
+        }
+        wp_die('Eroare la generarea PDF: ' . esc_html($e->getMessage()), 'Eroare PDF', 500);
     }
 
-    // DOMPDF 2.0.4 – I/O dirs (Windows safe)
-    $uploads     = wp_get_upload_dir();
-    $baseUploads = rtrim($uploads['basedir'] ?? (WP_CONTENT_DIR . '/uploads'), DIRECTORY_SEPARATOR);
-    $temp_dir    = $baseUploads . '/dompdf_tmp';
-    $font_cache  = $baseUploads . '/dompdf_font_cache';
-    $log_file    = $baseUploads . '/dompdf_log.html';
-
-    if (!function_exists('wp_mkdir_p')) {
-        require_once ABSPATH . 'wp-admin/includes/file.php';
-    }
-    wp_mkdir_p($temp_dir);
-    wp_mkdir_p($font_cache);
-
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('[EDU-PDF] using dompdf 2.0.4');
-        error_log('[EDU-PDF] temp_dir=' . $temp_dir . ' exists=' . (is_dir($temp_dir) ? '1' : '0'));
-        error_log('[EDU-PDF] font_cache=' . $font_cache . ' exists=' . (is_dir($font_cache) ? '1' : '0'));
-    }
-
-    $options = new \Dompdf\Options();
-    $options->set('isRemoteEnabled', true);
-    $options->set('isHtml5ParserEnabled', true);
-    $options->set('defaultFont', 'DejaVu Sans');
-    $options->set('chroot', ABSPATH);
-    $options->set('tempDir', $temp_dir);
-    $options->set('fontCache', $font_cache);
-    $options->set('logOutputFile', $log_file);
-
-    $dompdf = new \Dompdf\Dompdf($options);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->loadHtml($html, 'UTF-8');
-    $dompdf->render();
+    // Aruncăm orice output buffer-uit (warning-uri suprimate, output din plugin-uri etc.)
+    while (ob_get_level() > 0) { ob_end_clean(); }
+    error_reporting($prev_error_reporting);
 
     $filename = sprintf('Raport-Generatie-%d-%s.pdf', $generation_id, strtoupper($module));
-    $dompdf->stream($filename, ['Attachment' => true]);
+
+    if (headers_sent($hs_file, $hs_line)) {
+        wp_die('Nu pot trimite PDF-ul: header-ele au fost deja trimise în ' . esc_html($hs_file) . ':' . (int)$hs_line, 'Eroare PDF', 500);
+    }
+
+    nocache_headers();
+    header('Content-Type: application/pdf');
+    header('Content-Length: ' . strlen($pdfBytes));
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    echo $pdfBytes;
     exit;
+}
+
+// =================== EXPORT PDF — ELEV (SEL/LIT) ===================
+
+add_action('admin_post_edu_export_student_pdf', 'edu_export_student_pdf');
+add_action('admin_post_nopriv_edu_export_student_pdf', 'edu_export_student_pdf');
+
+/**
+ * URL helper pentru butoanele de pe /panou/raport/elev/{id}/:
+ *  echo esc_url( edu_student_pdf_url($student_id, 'sel') );
+ *  echo esc_url( edu_student_pdf_url($student_id, 'lit') );
+ */
+function edu_student_pdf_url(int $student_id, string $module): string {
+    $module = strtolower($module) === 'lit' ? 'lit' : 'sel';
+    $nonce  = wp_create_nonce('edu_export_student_pdf_' . $student_id . '_' . $module);
+    return add_query_arg([
+        'action'     => 'edu_export_student_pdf',
+        'module'     => $module,
+        'student_id' => $student_id,
+        '_wpnonce'   => $nonce,
+    ], admin_url('admin-post.php'));
+}
+
+function edu_export_student_pdf() {
+    if (!is_user_logged_in()) {
+        wp_die('Trebuie să fii autentificat pentru export.', 'Acces restricționat', 403);
+    }
+
+    $module     = isset($_GET['module']) ? strtolower(sanitize_text_field($_GET['module'])) : '';
+    $student_id = isset($_GET['student_id']) ? intval($_GET['student_id']) : 0;
+    $nonce      = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
+
+    if (!in_array($module, ['sel', 'lit'], true)) {
+        wp_die('Parametrul module trebuie să fie "sel" sau "lit".', 'Parametru invalid', 400);
+    }
+    if ($student_id <= 0) {
+        wp_die('Lipsește student_id.', 'Parametru lipsă', 400);
+    }
+    if (!wp_verify_nonce($nonce, 'edu_export_student_pdf_' . $student_id . '_' . $module)) {
+        wp_die('Cerere invalidă (nonce).', 'Securitate', 403);
+    }
+    if (!current_user_can('read')) {
+        wp_die('Nu ai permisiunea să exporți acest raport.', 'Acces restricționat', 403);
+    }
+
+    // Suprimă deprecation-urile PHP 8+ din dompdf (altfel rup header-ele).
+    $prev_error_reporting = error_reporting();
+    error_reporting($prev_error_reporting & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE & ~E_WARNING);
+    @ini_set('display_errors', '0');
+    @ini_set('html_errors', '0');
+
+    while (ob_get_level() > 0) { ob_end_clean(); }
+    ob_start();
+
+    try {
+        $html = edu_render_student_pdf_html($student_id, $module);
+
+        if (!class_exists(\Dompdf\Dompdf::class)) {
+            throw new \RuntimeException('Dompdf nu este încărcat.');
+        }
+
+        $uploads     = wp_get_upload_dir();
+        $baseUploads = rtrim($uploads['basedir'] ?? (WP_CONTENT_DIR . '/uploads'), DIRECTORY_SEPARATOR);
+        $temp_dir    = $baseUploads . '/dompdf_tmp';
+        $font_cache  = $baseUploads . '/dompdf_font_cache';
+        $log_file    = $baseUploads . '/dompdf_log.html';
+
+        if (!function_exists('wp_mkdir_p')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        wp_mkdir_p($temp_dir);
+        wp_mkdir_p($font_cache);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('chroot', ABSPATH);
+        $options->set('tempDir', $temp_dir);
+        $options->set('fontCache', $font_cache);
+        $options->set('logOutputFile', $log_file);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->render();
+        $pdfBytes = $dompdf->output();
+    } catch (\Throwable $e) {
+        @ob_end_clean();
+        error_reporting($prev_error_reporting);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[EDU-PDF-ELEV] EXCEPTION: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            error_log('[EDU-PDF-ELEV] TRACE: ' . $e->getTraceAsString());
+        }
+        wp_die('Eroare la generarea PDF: ' . esc_html($e->getMessage()), 'Eroare PDF', 500);
+    }
+
+    while (ob_get_level() > 0) { ob_end_clean(); }
+    error_reporting($prev_error_reporting);
+
+    $filename = sprintf('Raport-Elev-%d-%s.pdf', $student_id, strtoupper($module));
+
+    if (headers_sent($hs_file, $hs_line)) {
+        wp_die('Nu pot trimite PDF-ul: header-ele au fost deja trimise în ' . esc_html($hs_file) . ':' . (int)$hs_line, 'Eroare PDF', 500);
+    }
+
+    nocache_headers();
+    header('Content-Type: application/pdf');
+    header('Content-Length: ' . strlen($pdfBytes));
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    echo $pdfBytes;
+    exit;
+}
+
+function edu_render_student_pdf_html(int $student_id, string $module): string {
+    global $wpdb;
+
+    $tbl_students    = $wpdb->prefix . 'edu_students';
+    $tbl_results     = $wpdb->prefix . 'edu_results';
+    $tbl_generations = $wpdb->prefix . 'edu_generations';
+    $tbl_schools     = $wpdb->prefix . 'edu_schools';
+
+    $student = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$tbl_students} WHERE id=%d", $student_id));
+    if (!$student) {
+        wp_die('Elevul nu a fost găsit.', 'Eroare', 404);
+    }
+
+    // context profesor + generație + școală (mimează raport-elev.php)
+    $teacherName = '—';
+    if (!empty($student->professor_id)) {
+        $u = get_userdata((int)$student->professor_id);
+        if ($u) $teacherName = $u->display_name ?: ($u->user_nicename ?: '—');
+    }
+    $generationLabel = '—';
+    $generationYear  = null;
+    $generationLevel = null;
+    if (!empty($student->generation_id)) {
+        $gen = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$tbl_generations} WHERE id=%d", (int)$student->generation_id));
+        if ($gen) {
+            $generationLabel = $gen->name ?? ('Generația #'.(int)$gen->id);
+            $generationYear  = $gen->year  ?? null;
+            $generationLevel = $gen->level ?? null;
+        } else {
+            $generationLabel = 'Generația #'.(int)$student->generation_id;
+        }
+    }
+    $schoolDisplay = '—';
+    if (!empty($student->professor_id)) {
+        $assigned = get_user_meta((int)$student->professor_id, 'assigned_school_ids', true);
+        $school_ids = [];
+        if (is_string($assigned) && $assigned !== '') {
+            $j = json_decode($assigned, true);
+            if (is_array($j)) $school_ids = array_map('intval', $j);
+            elseif (preg_match('/^[adObis]:/', $assigned)) {
+                $u = @unserialize($assigned);
+                if (is_array($u)) $school_ids = array_map('intval', $u);
+            } elseif (ctype_digit(trim($assigned))) {
+                $school_ids = [intval($assigned)];
+            }
+        } elseif (is_array($assigned)) {
+            $school_ids = array_map('intval', $assigned);
+        }
+        $school_ids = array_values(array_filter($school_ids));
+        if (!empty($school_ids)) {
+            $in = implode(',', array_fill(0, count($school_ids), '%d'));
+            $schools = $wpdb->get_results($wpdb->prepare(
+                "SELECT id, short_name, name, location, superior_location, county FROM {$tbl_schools} WHERE id IN ($in)",
+                ...$school_ids
+            ));
+            if ($schools) {
+                $parts = [];
+                foreach ($schools as $sc) {
+                    $short = trim((string)($sc->short_name ?: $sc->name));
+                    $where = array_filter([$sc->location ?: null, $sc->superior_location ?: null, $sc->county ?: null]);
+                    $parts[] = $short . ($where ? (' — '.implode(', ', $where)) : '');
+                }
+                if ($parts) $schoolDisplay = implode('; ', $parts);
+            }
+        }
+    }
+
+    // Toate rezultatele elevului (stdClass[])
+    $rowsRaw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$tbl_results} WHERE student_id=%d", $student_id));
+
+    $safeStudent = trim(($student->first_name ?? '').' '.($student->last_name ?? 'Elev'));
+
+    ob_start();
+    $theme_dir = get_template_directory();
+
+    // common helpers (idempotent — folosesc if (!function_exists))
+    require_once $theme_dir . '/dashboard/raport-elev-helpers-common.php';
+
+    if ($module === 'sel') {
+        require_once $theme_dir . '/dashboard/raport-elev-helper-sel.php';
+        require $theme_dir . '/dashboard/raport-elev-pdf-sel.php';
+    } else {
+        require_once $theme_dir . '/dashboard/raport-elev-helper-lit.php';
+        require $theme_dir . '/dashboard/raport-elev-pdf-lit.php';
+    }
+
+    return ob_get_clean();
 }
 
 /* Normalizează etapa din modul: ex. "SEL-T1-PRIMAR-MARE" -> "sel-t1" */
